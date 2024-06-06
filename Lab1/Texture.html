@@ -1,0 +1,114 @@
+<html>
+ <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title></title>
+    <style>
+        body { margin: 0; }
+        canvas { display: block; }
+		 #container { width: 100vw; height: 100vh; display: block; }
+    </style>
+ 
+ </head>
+
+ <body>
+ 
+ <!--объект веб страницы, в котором будет отображаться графика -->
+ <div id="container"></div>
+ <!-- Подключение библиотеки ThreeJS -->
+ <script src="three.min.js"></script>
+ <!-- Подключение скрипта с графической программой -->
+ <script>
+
+// Глобальные переменные
+const gridSize = 10; // Размер сетки
+
+var container, camera, scene, renderer;
+
+// Функция инициализации
+function init() {
+    container = document.getElementById('container');
+    scene = new THREE.Scene();
+
+    // Инициализация камеры
+    camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 1000);
+    camera.position.set(0, 15, 0);
+    camera.lookAt(new THREE.Vector3(0, 0, 0));
+
+    // Инициализация рендера
+    renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setClearColor(0x000000, 1); // Черный фон
+
+    container.appendChild(renderer.domElement);
+
+    // Инициализация сетки
+    initGrid();
+
+    window.addEventListener('resize', onWindowResize, false);
+
+    animate(); // Запуск анимации
+}
+
+// Функция инициализации сетки
+function initGrid() {
+    var gridGeometry = new THREE.Geometry();
+
+    // Добавление вершин сетки в геометрию
+    for (var i = 0; i <= gridSize; i++) {
+        for (var j = 0; j <= gridSize; j++) {
+            gridGeometry.vertices.push(new THREE.Vector3(-gridSize / 2 + i, 0, -gridSize / 2 + j));
+        }
+    }
+
+    // Добавление треугольников
+    for (var i = 0; i < gridSize; i++) {
+        for (var j = 0; j < gridSize; j++) {
+            var a = i + (gridSize + 1) * j;
+            var b = i + 1 + (gridSize + 1) * j;
+            var c = i + (gridSize + 1) * (j + 1);
+            var d = i + 1 + (gridSize + 1) * (j + 1);
+
+            // Первый треугольник
+            gridGeometry.faces.push(new THREE.Face3(a, b, c));
+            // Второй треугольник
+            gridGeometry.faces.push(new THREE.Face3(b, d, c));
+        }
+    }
+
+    // Создание материала сетки
+    var gridMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff, wireframe: true });
+
+    // Создание объекта сетки
+    var grid = new THREE.Mesh(gridGeometry, gridMaterial);
+
+    // Добавление сетки в сцену
+    scene.add(grid);
+}
+
+// Функция обновления размеров окна
+function onWindowResize() {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+}
+
+// Функция анимации
+function animate() {
+    requestAnimationFrame(animate);
+    render(); // Вызов функции отрисовки кадра
+}
+
+// Функция отрисовки кадра
+function render() {
+    renderer.render(scene, camera);
+}
+
+// Вызов функции инициализации при загрузке страницы
+window.onload = init;
+
+ 
+ </script>
+ </body>
+</html>
+
